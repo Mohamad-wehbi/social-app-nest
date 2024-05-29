@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Story" ALTER COLUMN "expiresIn" DROP DEFAULT,
+ALTER COLUMN "expiresIn" SET DATA TYPE TEXT;

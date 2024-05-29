@@ -1,0 +1,134 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Status {
+  SINGLE
+  MARRIED
+  SEPARATE
+  WIDOWER
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  email    String @unique
+  username String
+  password String
+
+  profilePicUrl String  @default("https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460__480.png")
+  profilePicId  String?
+
+  coverPicUrl String  @default("https://flowbite.com/docs/images/examples/image-3@2x.jpg")
+  coverPicId  String?
+
+  bio     String?
+  livesin String?
+  status  Status  @default(SINGLE)
+  worksAt String?
+  role    Role    @default(USER)
+
+  passResetCode     Int?
+  expiresTime       DateTime?
+  passResetVerified Boolean?
+
+  posts     Post[]
+  following Following[]
+  followers Followers[]
+
+  Comment Comment[]
+  likes   Like[]
+  stories Story[]
+  notifications  Notification[]
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  desc     String
+  image    String
+  imageId  String
+  likes    Like[]
+  comments Comment[]
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  postId Int
+  post   Post   @relation(fields: [postId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  userId Int
+  user   User   @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  desc   String
+}
+
+model Like {
+  id      Int      @id @default(autoincrement())
+  likedAt DateTime @default(now())
+
+  postId Int
+  post   Post @relation(fields: [postId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
+
+model Story {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  desc      String
+  image     String
+  imageId   String
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
+
+model Following {
+  id         Int      @id @default(autoincrement())
+  followedAt DateTime @default(now())
+
+  userId   Int
+  users    User[]
+}
+
+model Followers {
+  id          Int      @id @default(autoincrement())
+  followredAt DateTime @default(now())
+
+  userId   Int
+  users    User[]
+}
+
+model Notification {
+  id         Int      @id @default(autoincrement())
+  noticeAt   DateTime @default(now())
+
+  userId   Int
+  username String
+  userImg  String
+  message  String
+  users    User[]
+}
